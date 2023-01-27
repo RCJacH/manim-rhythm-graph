@@ -84,7 +84,12 @@ class Pie(mn.VGroup):
 
     def _add_bg(self):
         self.background = mn.Circle(
-            radius=self.radius, color=self.stroke_color, z_index=self.z_index
+            radius=self.radius,
+            color=self.stroke_color,
+            stroke_width=self.stroke_width * self.radius
+            - self.stroke_width / 2,
+            fill_opacity=1,
+            z_index=self.z_index,
         )
 
     def _add_items(self, **kwargs):
