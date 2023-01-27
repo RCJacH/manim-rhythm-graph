@@ -28,10 +28,21 @@ class Radii(mn.Group):
             )
         )
 
+
+    @mn.override_animation(mn.Create)
+    def _create_override(self, lag_ratio=0, rate_func=lambda _: 0, **kwargs):
+        return mn.AnimationGroup(
+            *(mn.Create(x, rate_func=rate_func) for x in self),
+            lag_ratio=lag_ratio,
+            introducer=False,
+            remover=True,
+            **kwargs,
+        )
+
     @mn.override_animation(mn.Uncreate)
     def _uncreate_override(self, lag_ratio=0, rate_func=lambda _: 1, **kwargs):
         return mn.AnimationGroup(
-            *(mn.Uncreate(x, remover=True, rate_func=rate_func) for x in self),
+            *(mn.Uncreate(x, rate_func=rate_func) for x in self),
             lag_ratio=lag_ratio,
             remover=True,
             **kwargs,
@@ -99,6 +110,13 @@ class Pie(mn.VGroup):
         start_angles = np.cumsum((0, *angles[:-1])) + mn.PI / 2
         self.angles = np.stack((start_angles, angles)).transpose()
 
+        self.radii = Radii(
+            self.angles,
+            self.radius,
+            stroke_color=self.stroke_color,
+            stroke_width=self.stroke_width,
+            z_index=self.z_index,
+        )
         self.add(
             *(
                 PieSector(
@@ -118,11 +136,14 @@ class Pie(mn.VGroup):
     @mn.override_animation(mn.Create)
     def _create_override(self, lag_ratio=0, run_time=1, **kwargs):
         return mn.AnimationGroup(
-            mn.FadeIn(
+            mn.Create(
                 self.background,
-                rate_func=lambda t: t == 1,
+                rate_func=lambda _: 0,
+                introducer=False,
+                remover=True,
             ),
-            *(mn.Create(x) for x in self),
+            mn.Create(self.radii),
+            *(mn.Create(x, introducer=False, remover=True) for x in self),
             lag_ratio=lag_ratio,
             run_time=run_time,
             **kwargs,
@@ -132,6 +153,7 @@ class Pie(mn.VGroup):
     def _uncreate_override(self, lag_ratio=0, run_time=1, **kwargs):
         return mn.AnimationGroup(
             mn.FadeOut(self.background, rate_func=lambda _: 1),
+            mn.Uncreate(self.radii),
             *(mn.Uncreate(x, remover=True) for x in self),
             lag_ratio=lag_ratio,
             run_time=run_time,
