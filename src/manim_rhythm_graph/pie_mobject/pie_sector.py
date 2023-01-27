@@ -76,7 +76,7 @@ class PieSector(mn.VDict):
     def beat(self, **kwargs):
         return mn.Indicate(
             self,
-            scale_factor=0.95,
+            scale_factor=0.96,
             color=mn.interpolate_color(self.color, mn.WHITE, 0.8),
             rate_func=lambda t: 1
             - mn.rate_functions.ease_in_out_quart(t * 0.8),
