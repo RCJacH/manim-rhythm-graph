@@ -17,10 +17,11 @@ def shortest_distance(point_a, list_b):
 
 def get_sector_pairs(fewer_segments, more_segments):
     real_fewer_segments = fewer_segments.transpose()
+    start = real_fewer_segments[0, 0]
     cap = real_fewer_segments[-1, 1]
     fewer_segments = np.concatenate((real_fewer_segments, ((cap, cap),)))
     more_segments = more_segments.transpose()
-    result_pairs = np.zeros((len(more_segments), 2), dtype="float64")
+    result_pairs = np.full((len(more_segments), 2), start, dtype="float64")
     i = 0
     for more_segment in more_segments:
         target = shortest_distance(more_segment, real_fewer_segments)
@@ -49,7 +50,7 @@ def get_sector_pairs(fewer_segments, more_segments):
     result_pairs = np.sort(result_pairs[:, 1])
 
     result = [
-        -1 if x == cap else np.where(real_fewer_segments[0] == x)[0][0]
+        -1 if x == cap else np.where(real_fewer_segments[:, 0] == x)[0][0]
         for x in result_pairs
     ]
     return result
