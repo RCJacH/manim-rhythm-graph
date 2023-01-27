@@ -167,7 +167,7 @@ class Pie(mn.VGroup):
     def beat(self, run_time=1, **kwargs):
         return mn.Succession(
             *(
-                x.beat(run_time=run_time / self.weights[i], **kwargs)
+                x.beat(run_time=run_time * self.weights[i], **kwargs)
                 for (i, x) in enumerate(self)
             ),
             run_time=run_time,
