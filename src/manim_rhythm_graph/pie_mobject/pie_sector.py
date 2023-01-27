@@ -42,6 +42,10 @@ class PieSector(mn.VDict):
             stroke_color=stroke_color, stroke_width=stroke_width, **kwargs
         )
 
+        self.start_angle = start_angle
+        self.angle = angle
+        self.radius = radius
+        self.color = color
         stroke = PieSlice(
             outer_radius=radius,
             start_angle=start_angle,
@@ -65,6 +69,9 @@ class PieSector(mn.VDict):
         )
 
         self.add([("fill", fill), ("stroke", stroke)])
+
+    def __repr__(self):
+        return f"PieSector(start_angle={self.start_angle}, angle={self.angle}, radius={self.radius}, color={self.color}, stroke_width={self.stroke_width}, stroke_color={self.stroke_color})"
 
     def beat(self, **kwargs):
         return mn.Indicate(
