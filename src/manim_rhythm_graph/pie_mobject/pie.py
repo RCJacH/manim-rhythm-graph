@@ -95,24 +95,23 @@ class Pie(mn.VGroup):
     def _add_items(self, **kwargs):
         self._add_bg()
 
-        self.angles = self.weights * -mn.TAU
-        self.start_angles = np.cumsum((0, *self.angles[:-1])) + mn.PI / 2
+        angles = self.weights * -mn.TAU
+        start_angles = np.cumsum((0, *angles[:-1])) + mn.PI / 2
+        self.angles = np.stack((start_angles, angles)).transpose()
 
         self.add(
             *(
                 PieSector(
                     radius=self.radius,
-                    start_angle=a + sa,
-                    angle=-a,
+                    start_angle=a.sum(),
+                    angle=-a[1],
                     stroke_color=self.stroke_color,
                     stroke_width=self.stroke_width,
                     color=self.colors[i],
                     z_index=self.z_index + 1,
                     **kwargs,
                 )
-                for i, (sa, a) in enumerate(
-                    zip(self.start_angles, self.angles)
-                )
+                for i, a in enumerate(self.angles)
             )
         )
 
