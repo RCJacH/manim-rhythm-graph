@@ -54,6 +54,11 @@ class Pie(mn.VGroup):
             **kwargs,
         )
 
+    def __repr__(self):
+        return (
+            f"Pie({self.weights}, radius={self.radius}, colors={self.colors})"
+        )
+
     def _calculate_weights(self, weights):
         try:
             weights[0]
