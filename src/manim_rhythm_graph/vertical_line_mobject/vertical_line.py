@@ -1,3 +1,4 @@
+import math
 import manim as mn
 import numpy as np
 
@@ -22,6 +23,17 @@ class VerticalLine(mn.VGroup):
         ellipse.rotate(mn.PI / 2)
         ellipse.flip()
         self.add(ellipse)
+
+    def beat(self, **kwargs):
+        return mn.Indicate(
+            self,
+            scale_factor=1.04,
+            color=mn.interpolate_color(self.color, mn.YELLOW, 0.25),
+            rate_func=lambda t: mn.rate_functions.there_and_back(
+                mn.rate_functions.ease_in_out_quart(t**0.25)
+            ),
+            **kwargs,
+        )
 
     @mn.override_animation(mn.Create)
     def _create_override(self, run_time=1, **kwargs):
@@ -62,7 +74,7 @@ class VerticalLine(mn.VGroup):
             ),
             mn.Create(
                 mobject2,
-            run_time=run_time,
+                run_time=run_time,
             ),
             mn.FadeIn(self[0], run_time=0),
             lag_ratio=0,
