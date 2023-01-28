@@ -10,11 +10,10 @@ class VerticalLine(mn.VGroup):
         self.stroke_width = (
             kwargs.pop("stroke_width", mn.DEFAULT_STROKE_WIDTH) * height
         )
-        self.height = height
         self.color = color or mn.WHITE
 
         ellipse = mn.Ellipse(
-            width=height,
+            width=height * 2,
             height=0,
             stroke_width=self.stroke_width,
             color=self.color,
@@ -25,7 +24,7 @@ class VerticalLine(mn.VGroup):
         self.add(ellipse)
 
     @mn.override_animation(mn.Create)
-    def _create_override(self, **kwargs):
+    def _create_override(self, run_time=1, **kwargs):
         array = np.array([0, self.height / 2, 0])
         line = mn.Line(
             self[0].arc_center + array,
@@ -42,6 +41,7 @@ class VerticalLine(mn.VGroup):
                 run_time=0,
             ),
             lag_ratio=0,
+            run_time=run_time,
         )
 
     @mn.override_animation(mn.Uncreate)
@@ -53,7 +53,7 @@ class VerticalLine(mn.VGroup):
         if not isinstance(mobject2, Pie):
             return mn.Transform(self[0], mobject2, run_time=run_time, **kwargs)
         circ = mn.Circle(
-            radius=self.height,
+            radius=self.height / 2,
             color=self.color,
             stroke_width=self.stroke_width,
         )
