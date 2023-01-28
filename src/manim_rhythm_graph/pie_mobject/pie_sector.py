@@ -84,11 +84,11 @@ class PieSector(mn.VDict):
         )
 
     @mn.override_animation(mn.Create)
-    def _create_override(self, lag_ratio=0.38, **kwargs):
+    def _create_override(self, lag_ratio=0.225, **kwargs):
         return mn.AnimationGroup(
             mn.Create(
                 self["stroke"],
-                rate_func=lambda t: mn.rate_functions.ease_in_cubic(0.1 + t),
+                rate_func=lambda t: mn.rate_functions.ease_in_quad(t),
             ),
             mn.Create(self["fill"]),
             lag_ratio=lag_ratio,
@@ -103,7 +103,7 @@ class PieSector(mn.VDict):
                 self["stroke"],
                 run_time=0.5,
                 rate_func=lambda t: 0.1
-                + mn.rate_functions.ease_out_sine(t) * 0.9,
+                + mn.rate_functions.ease_out_quad(t) * 0.9,
             ),
             lag_ratio=lag_ratio,
             **kwargs,

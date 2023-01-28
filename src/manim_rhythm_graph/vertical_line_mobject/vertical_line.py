@@ -25,23 +25,9 @@ class VerticalLine(mn.VGroup):
 
     @mn.override_animation(mn.Create)
     def _create_override(self, run_time=1, **kwargs):
-        array = np.array([0, self.height / 2, 0])
-        line = mn.Line(
-            self[0].arc_center + array,
-            self[0].arc_center - array,
-            color=self.color,
-            stroke_width=self.stroke_width,
-        )
-        return mn.Succession(
-            mn.Create(line, remover=True, Introducer=False, **kwargs),
-            mn.Transform(
-                line,
-                self[0],
-                replace_mobject_with_target_in_scene=True,
-                run_time=0,
-            ),
-            lag_ratio=0,
-            run_time=run_time,
+        return mn.AnimationGroup(
+            mn.Create(self[0]),
+            rate_func=lambda t: math.sin(((t * 0.4) ** 1.1 * mn.PI) / 2),
         )
 
     @mn.override_animation(mn.Uncreate)
@@ -52,26 +38,34 @@ class VerticalLine(mn.VGroup):
     def _transform_override(self, mobject2, run_time=1, **kwargs):
         if not isinstance(mobject2, Pie):
             return mn.Transform(self[0], mobject2, run_time=run_time, **kwargs)
-        circ = mn.Circle(
-            radius=self.height / 2,
+        circ = mn.Ellipse(
+            width=self.height,
+            height=self.height,
             color=self.color,
             stroke_width=self.stroke_width,
         )
         circ.rotate(mn.PI / 2)
         circ.flip()
+        ellipse = self[0].copy()
+
+        self.remove(self[0])
+        self.add(circ)
 
         animation = mn.AnimationGroup(
             mn.Transform(
-                self[0],
+                ellipse,
                 circ,
-                run_time=run_time * 0.5,
-                replace_mobject_with_target_in_scene=False,
+                run_time=run_time * 0.6,
+                rate_func=lambda t: mn.rate_functions.ease_out_quart(t * 0.6),
+                introducer=False,
                 remover=True,
             ),
-            mn.Create(mobject2, run_time=run_time),
-            lag_ratio=0,
+            mn.Create(
+                mobject2,
             run_time=run_time,
-            remover=True,
+            ),
+            mn.FadeIn(self[0], run_time=0),
+            lag_ratio=0,
         )
 
         return animation
