@@ -21,7 +21,7 @@ class VerticalLine(mn.VGroup):
             **kwargs,
         )
         ellipse.rotate(mn.PI / 2)
-        ellipse.flip()
+        ellipse.force_direction("CW")
         self.add(ellipse)
 
     def beat(self, **kwargs):
@@ -57,7 +57,7 @@ class VerticalLine(mn.VGroup):
             stroke_width=self.stroke_width,
         )
         circ.rotate(mn.PI / 2)
-        circ.flip()
+        circ.force_direction("CW")
         ellipse = self[0].copy()
 
         self.remove(self[0])
