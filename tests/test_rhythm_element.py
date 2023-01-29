@@ -48,3 +48,19 @@ def render(request, monkeypatch):
 def test_weights(weights, result):
     ele = RhythmElement(weights=weights)
     assert (ele.weights == result).all()
+
+
+@pytest.mark.parametrize(
+    "weights, result",
+    [
+        (1, []),
+        (4, []),
+        (-12, list(range(12))),
+        ([1, 2, 3, 4], []),
+        ([2, -2, 5, -6], [1, 3]),
+        ([], [0]),
+    ],
+)
+def test_rest(weights, result):
+    ele = RhythmElement(weights=weights)
+    assert ele.rests == result
