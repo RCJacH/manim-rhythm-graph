@@ -39,10 +39,15 @@ class RhythmElement(mn.VDict):
         for submob in self.get_all_submobjects():
             submob.set_opacity(0)
             self.remove(submob)
-        self["pulse"] = Pulse()
-        self["pulse"].scale(self.scale)
-        self["pie"] = Pie(weights=self.weights, colors=self.colors)
-        self["pie"].scale(self.scale)
+        pulse = Pulse()
+        pulse.scale(self.scale)
+        pulse.set_opacity(self.style == RhythmVisualStyles.PULSE)
+        self[RhythmVisualStyles.PULSE] = pulse
+
+        pie = Pie(weights=self.weights, colors=self.colors)
+        pie.scale(self.scale)
+        pie.set_opacity(self.style == RhythmVisualStyles.PIE)
+        self[RhythmVisualStyles.PIE] = pie
 
     def _calculate_weights(self, weights):
         try:

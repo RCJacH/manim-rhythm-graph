@@ -38,6 +38,10 @@ class Pulse(mn.VGroup):
             **kwargs,
         )
 
+    def set_opacity(self, opacity, **kwargs):
+        self[0].set_opacity(opacity, **kwargs)
+        return self
+
     @mn.override_animation(mn.Create)
     def _create_override(self, run_time=1, **kwargs):
         return mn.AnimationGroup(

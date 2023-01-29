@@ -130,6 +130,12 @@ class Pie(mn.VGroup):
     def beat(self, **kwargs):
         return self.pulsate(**kwargs)
 
+    def set_opacity(self, opacity, **kwargs):
+        self.background.set_opacity(opacity=opacity, **kwargs)
+        self.radii.set_opacity(opacity=opacity, **kwargs)
+        for c in self:
+            c.set_opacity(opacity, **kwargs)
+
     def reform(self, divisions, radius=None, colors=None, **kwargs):
         pie = self.copy()
         self.background.set_opacity(0)

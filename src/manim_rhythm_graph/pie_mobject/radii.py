@@ -3,7 +3,7 @@ import manim as mn
 from .pie_sector import PieSector
 
 
-class Radii(mn.Group):
+class Radii(mn.VGroup):
     def __init__(
         self, angles, radius, stroke_color, stroke_width, color=None, **kwargs
     ):
@@ -48,3 +48,7 @@ class Radii(mn.Group):
             remover=True,
             **kwargs,
         )
+
+    def set_opacity(self, opacity, **kwargs):
+        for c in self:
+            c.set_opacity(opacity, **kwargs)
