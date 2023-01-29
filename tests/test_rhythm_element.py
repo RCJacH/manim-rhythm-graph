@@ -31,3 +31,20 @@ def render(request, monkeypatch):
     with mn.tempconfig({"dry_run": True}):
         monkeypatch.setattr(scene, "construct", _wrapper)
         scene.render()
+
+
+@pytest.mark.parametrize(
+    "weights, result",
+    [
+        (1, [1]),
+        (4, (0.25,) * 4),
+        (6, (1 / 6,) * 6),
+        (-12, (1 / 12,) * 12),
+        ([1, 2, 3, 4], [1 / 10, 2 / 10, 3 / 10, 4 / 10]),
+        ([2, -2, 5, -6], [2 / 15, 2 / 15, 5 / 15, 6 / 15]),
+        ([], (-1,)),
+    ],
+)
+def test_weights(weights, result):
+    ele = RhythmElement(weights=weights)
+    assert (ele.weights == result).all()
