@@ -74,6 +74,9 @@ class PieSector(mn.VDict):
         return f"PieSector(start_angle={self.start_angle}, angle={self.angle}, radius={self.radius}, color={self.color}, stroke_width={self.stroke_width}, stroke_color={self.stroke_color})"
 
     def beat(self, **kwargs):
+        return self.pulsate(**kwargs)
+
+    def pulsate(self, **kwargs):
         return mn.Indicate(
             self,
             scale_factor=0.96,

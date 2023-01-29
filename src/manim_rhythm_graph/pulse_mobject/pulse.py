@@ -25,6 +25,9 @@ class Pulse(mn.VGroup):
         self.add(ellipse)
 
     def beat(self, **kwargs):
+        return self.pulsate(**kwargs)
+
+    def pulsate(self, **kwargs):
         return mn.Indicate(
             self,
             scale_factor=1.04,

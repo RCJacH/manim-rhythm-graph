@@ -118,15 +118,18 @@ class Pie(mn.VGroup):
             **kwargs,
         )
 
-    def beat(self, run_time=1, **kwargs):
+    def pulsate(self, run_time=1, **kwargs):
         return mn.Succession(
             *(
-                x.beat(run_time=run_time * self.weights[i], **kwargs)
+                x.pulsate(run_time=run_time * self.weights[i], **kwargs)
                 for (i, x) in enumerate(self)
             ),
             run_time=run_time,
             remover=True,
         )
+
+    def beat(self, **kwargs):
+        return self.pulsate(**kwargs)
 
     def reform(self, divisions, radius=None, colors=None, **kwargs):
         pie = self.copy()
