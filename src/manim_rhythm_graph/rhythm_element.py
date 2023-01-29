@@ -15,17 +15,24 @@ class RhythmVisualStyles(Enum):
 
 class RhythmElement(mn.VDict):
     def __init__(
-        self, weights=1, scale=1, colors=mn.RED, style="pie", **kwargs
+        self, weights=1, colors=mn.RED, style="pie", scale=1, **kwargs
     ):
         super().__init__(**kwargs)
-        self.set_scale(scale)
-        self.style = RhythmVisualStyles[style.upper()]
+        self.scale(scale)
+        self._style = RhythmVisualStyles[style.upper()]
 
-        self._calculate_weights(weights)
-        self._calculate_colors(colors)
+        self._calculate(weights, colors)
 
     def __repr__(self):
         return f"RhythmElement(weights={self.weights}, colors={self.colors}, style={self.style}, scale={self.scale})"
+
+    @property
+    def style(self):
+        return self._style
+
+    def _calculate(self, weights, colors):
+        self._calculate_weights(weights)
+        self._calculate_colors(colors)
 
     def _calculate_weights(self, weights):
         try:
