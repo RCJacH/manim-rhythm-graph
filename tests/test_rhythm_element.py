@@ -64,3 +64,26 @@ def test_weights(weights, result):
 def test_rest(weights, result):
     ele = RhythmElement(weights=weights)
     assert ele.rests == result
+
+
+@pytest.mark.parametrize(
+    "weights, colors, result",
+    [
+        (1, mn.BLUE, [mn.BLUE]),
+        ([2, 1], [mn.BLUE, mn.RED], [mn.BLUE, mn.RED]),
+        ([2, 2, 2, 2], [mn.BLUE, mn.RED], [mn.BLUE, mn.RED, mn.BLUE, mn.RED]),
+        (
+            [-2, 3, -4, 5, -6],
+            [mn.YELLOW, mn.GOLD],
+            [None, mn.YELLOW, None, mn.GOLD, None],
+        ),
+        (
+            [7, 7, -3, 3, -3],
+            [mn.DARK_BLUE, mn.TEAL],
+            [mn.DARK_BLUE, mn.TEAL, None, mn.DARK_BLUE, None],
+        ),
+    ],
+)
+def test_colors(weights, colors, result):
+    ele = RhythmElement(weights=weights, colors=colors)
+    assert ele.colors == result

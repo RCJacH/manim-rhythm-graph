@@ -1,4 +1,5 @@
 import itertools
+from collections.abc import Iterable
 import numpy as np
 import manim as mn
 
@@ -14,6 +15,7 @@ class RhythmElement(mn.VDict):
         self.set_scale(scale)
 
         self._calculate_weights(weights)
+        self._calculate_colors(colors)
 
     def _calculate_weights(self, weights):
         try:
@@ -31,4 +33,17 @@ class RhythmElement(mn.VDict):
             weights = np.array(weights, dtype="float64")
             weights /= weights.sum()
         self.weights = weights
+
+    def _calculate_colors(self, colors):
+        if isinstance(colors, str):
+            colors = (colors,)
+        try:
+            colors = itertools.cycle(colors)
+        except TypeError as f:
+            raise f
+        else:
+            colors = [
+                None if i in self.rests else next(colors)
+                for i in range(len(self.weights))
+            ]
         self.colors = colors
