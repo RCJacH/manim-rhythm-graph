@@ -5,7 +5,7 @@ import numpy as np
 from manim_rhythm_graph import Pie
 
 
-class VerticalLine(mn.VGroup):
+class Pulse(mn.VGroup):
     def __init__(self, height=1, color=None, **kwargs):
         super().__init__()
         self.stroke_width = (
