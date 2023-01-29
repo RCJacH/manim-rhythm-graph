@@ -18,9 +18,8 @@ class RhythmElement(mn.VDict):
         self, weights=1, colors=mn.RED, style="pie", scale=1, **kwargs
     ):
         super().__init__(**kwargs)
-        self.scale(scale)
         self._style = RhythmVisualStyles[style.upper()]
-
+        self._scale = scale
         self._calculate(weights, colors)
 
     def __repr__(self):
@@ -30,9 +29,18 @@ class RhythmElement(mn.VDict):
     def style(self):
         return self._style
 
+    @property
+    def scale(self):
+        return self._scale
+
     def _calculate(self, weights, colors):
         self._calculate_weights(weights)
         self._calculate_colors(colors)
+        for submob in self.get_all_submobjects():
+            submob.set_opacity(0)
+            self.remove(submob)
+        self["pulse"] = Pulse()
+        self["pulse"].scale(self.scale)
 
     def _calculate_weights(self, weights):
         try:

@@ -87,3 +87,13 @@ def test_rest(weights, result):
 def test_colors(weights, colors, result):
     ele = RhythmElement(weights=weights, colors=colors)
     assert ele.colors == result
+
+
+@pytest.mark.parametrize(
+    "kwargs, result",
+    [(dict(scale=2), dict(height=4)), (dict(scale=0.1), dict(height=0.2))],
+)
+def test_properties(kwargs, result):
+    ele = RhythmElement(**kwargs)
+    for k, v in result.items():
+        assert getattr(ele, k) == v
