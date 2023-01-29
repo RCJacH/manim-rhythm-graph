@@ -41,6 +41,8 @@ class RhythmElement(mn.VDict):
             self.remove(submob)
         self["pulse"] = Pulse()
         self["pulse"].scale(self.scale)
+        self["pie"] = Pie(weights=self.weights, colors=self.colors)
+        self["pie"].scale(self.scale)
 
     def _calculate_weights(self, weights):
         try:

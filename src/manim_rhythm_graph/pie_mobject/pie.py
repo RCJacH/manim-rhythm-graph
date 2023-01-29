@@ -7,7 +7,7 @@ from .get_sector_pairs import get_sector_pairs
 
 
 class Pie(mn.VGroup):
-    def __init__(self, divisions, radius=1, colors=None, **kwargs):
+    def __init__(self, weights, radius=1, colors=None, **kwargs):
         stroke_color = kwargs.pop("stroke_color", mn.WHITE)
         stroke_width = kwargs.pop("stroke_width", mn.DEFAULT_STROKE_WIDTH)
         super().__init__(
@@ -15,7 +15,7 @@ class Pie(mn.VGroup):
         )
 
         self.radius = radius
-        self.weights = self._calculate_weights(divisions)
+        self.weights = self._calculate_weights(weights)
         self.colors = self._calculate_colors(colors)
 
         self._add_items(
