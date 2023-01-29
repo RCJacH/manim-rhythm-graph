@@ -125,7 +125,6 @@ class Pie(mn.VGroup):
                 for (i, x) in enumerate(self)
             ),
             run_time=run_time,
-            remover=True,
         )
 
     def beat(self, **kwargs):
