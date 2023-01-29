@@ -24,6 +24,9 @@ class RhythmElement(mn.VDict):
         self._calculate_weights(weights)
         self._calculate_colors(colors)
 
+    def __repr__(self):
+        return f"RhythmElement(weights={self.weights}, colors={self.colors}, style={self.style}, scale={self.scale})"
+
     def _calculate_weights(self, weights):
         try:
             weights[0]
