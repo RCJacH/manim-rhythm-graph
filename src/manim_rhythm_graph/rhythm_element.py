@@ -1,3 +1,4 @@
+from enum import Enum
 import itertools
 from collections.abc import Iterable
 import numpy as np
@@ -7,12 +8,18 @@ from manim_rhythm_graph.pie_mobject import Pie
 from manim_rhythm_graph.pulse_mobject import Pulse
 
 
+class RhythmVisualStyles(Enum):
+    PULSE = 1
+    PIE = 2
+
+
 class RhythmElement(mn.VDict):
     def __init__(
-        self, weights=1, scale=1, colors=mn.RED, representation="Pie", **kwargs
+        self, weights=1, scale=1, colors=mn.RED, style="pie", **kwargs
     ):
         super().__init__(**kwargs)
         self.set_scale(scale)
+        self.style = RhythmVisualStyles[style.upper()]
 
         self._calculate_weights(weights)
         self._calculate_colors(colors)
