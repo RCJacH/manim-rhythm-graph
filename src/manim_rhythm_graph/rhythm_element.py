@@ -50,7 +50,7 @@ class RhythmElement(mn.VDict):
             self.rests = weights < 0 and list(range(abs(weights))) or []
             weights = (1.0,) * abs(weights)
         except IndexError:
-            self._calculate_weights(-1)
+            return self._calculate_weights(-1)
         else:
             self.rests = [i for (i, v) in enumerate(weights) if v < 0]
             weights = [abs(x) for x in weights]
