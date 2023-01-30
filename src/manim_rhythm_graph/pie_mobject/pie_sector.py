@@ -96,7 +96,7 @@ class PieSector(mn.VDict):
         return mn.AnimationGroup(
             mn.Create(
                 self["stroke"],
-                rate_func=lambda t: mn.rate_functions.ease_in_quad(t),
+                rate_func=mn.rate_functions.ease_in_quad,
             ),
             mn.Create(self["fill"]),
             lag_ratio=lag_ratio,

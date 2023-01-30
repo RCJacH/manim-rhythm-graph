@@ -35,6 +35,14 @@ class RhythmElement(mn.VDict):
     def pulsate(self, **kwargs):
         return self[self.style].pulsate(**kwargs)
 
+    @mn.override_animation(mn.Create)
+    def _create_override(self, **kwargs):
+        return mn.Create(self[self.style], **kwargs)
+
+    @mn.override_animation(mn.Uncreate)
+    def _uncreate_override(self, **kwargs):
+        return mn.Uncreate(self[self.style], **kwargs)
+
     def _calculate(self, weights=None, colors=None, scale=None, style=None):
         scale = scale or self._scale
         style = style or self._style

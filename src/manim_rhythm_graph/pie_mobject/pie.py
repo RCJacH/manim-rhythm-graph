@@ -66,14 +66,9 @@ class Pie(mn.VGroup):
     @mn.override_animation(mn.Create)
     def _create_override(self, lag_ratio=0, run_time=1, **kwargs):
         return mn.AnimationGroup(
-            mn.Create(
-                self.background,
-                rate_func=lambda _: 0,
-                introducer=False,
-                remover=True,
-            ),
+            mn.Create(self.background, run_time=0),
             mn.Create(self.radii),
-            *(mn.Create(x, introducer=False, remover=True) for x in self),
+            *(mn.Create(x) for x in self),
             lag_ratio=lag_ratio,
             run_time=run_time,
             **kwargs,
@@ -118,8 +113,7 @@ class Pie(mn.VGroup):
             radius=self.radius,
             color=self.stroke_color,
             stroke_color=self.stroke_color,
-            stroke_width=self.stroke_width * self.radius
-            - self.stroke_width / 2,
+            stroke_width=self.stroke_width,
             fill_opacity=1,
             z_index=self.z_index,
         )
