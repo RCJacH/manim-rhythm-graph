@@ -89,3 +89,6 @@ class RhythmElement(mn.VDict):
                 for i in range(len(self.weights))
             ]
         self.colors = colors
+
+    def pulsate(self, **kwargs):
+        return self[self.style].pulsate(**kwargs)
