@@ -40,16 +40,16 @@ class Radii(mn.VGroup):
         return mn.AnimationGroup(
             *(mn.Create(x, rate_func=rate_func) for x in self),
             lag_ratio=lag_ratio,
-            introducer=False,
-            remover=True,
             **kwargs,
         )
 
     @mn.override_animation(mn.Uncreate)
-    def _uncreate_override(self, lag_ratio=0, rate_func=lambda _: 1, **kwargs):
+    def _uncreate_override(
+        self, lag_ratio=0, rate_func=lambda t: t > 0.6, remover=True, **kwargs
+    ):
         return mn.AnimationGroup(
-            *(mn.Uncreate(x, rate_func=rate_func) for x in self),
+            *(mn.Uncreate(x, remover=remover) for x in self),
             lag_ratio=lag_ratio,
-            remover=True,
+            rate_func=rate_func,
             **kwargs,
         )

@@ -2,8 +2,6 @@ import math
 import manim as mn
 import numpy as np
 
-from manim_rhythm_graph import Pie
-
 
 class Pulse(mn.VGroup):
     def __init__(self, height=1, color=None, **kwargs):
@@ -16,8 +14,8 @@ class Pulse(mn.VGroup):
         ellipse = mn.Ellipse(
             width=height * 2,
             height=0,
+            stroke_color=self.color,
             stroke_width=self.stroke_width,
-            color=self.color,
             **kwargs,
         )
         ellipse.rotate(mn.PI / 2)
@@ -39,7 +37,7 @@ class Pulse(mn.VGroup):
         )
 
     def set_opacity(self, opacity, **kwargs):
-        self[0].set_opacity(opacity, **kwargs)
+        self[0].set_stroke_opacity(opacity, **kwargs)
         return self
 
     @mn.override_animation(mn.Create)
@@ -60,37 +58,36 @@ class Pulse(mn.VGroup):
         )
 
     @mn.override_animation(mn.Transform)
-    def _transform_override(self, mobject2, run_time=1, **kwargs):
-        if not isinstance(mobject2, Pie):
-            return mn.Transform(self[0], mobject2, run_time=run_time, **kwargs)
+    def _transform_override(self, mobject2, *args, **kwargs):
+        if type(mobject2).__name__ == "Pie":
+            return self._transform_to_pie(mobject2, *args, **kwargs)
+
+        return mn.Transform(self[0], mobject2, *args, **kwargs)
+
+    def _transform_to_pie(self, pie, *args, run_time=1, **kwargs):
         circ = mn.Ellipse(
             width=self.height,
             height=self.height,
-            color=self.color,
+            stroke_color=self.color,
             stroke_width=self.stroke_width,
         )
         circ.rotate(mn.PI / 2)
         circ.force_direction("CW")
-        ellipse = self[0].copy()
 
-        self.remove(self[0])
-        self.add(circ)
-
-        animation = mn.AnimationGroup(
+        return mn.AnimationGroup(
             mn.Transform(
-                ellipse,
+                self[0],
                 circ,
                 run_time=run_time * 0.6,
                 rate_func=lambda t: mn.rate_functions.ease_out_quart(t * 0.6),
-                introducer=False,
+                replace_mobject_with_target_in_scene=True,
                 remover=True,
             ),
-            mn.Create(
-                mobject2,
-                run_time=run_time,
-            ),
-            mn.FadeIn(self[0], run_time=0),
-            lag_ratio=0,
+            mn.Create(pie),
+            circ.animate(
+                run_time=0.001, rate_func=lambda _: 1, remover=True
+            ).set_opacity(0),
+            *args,
+            run_time=run_time,
+            **kwargs,
         )
-
-        return animation

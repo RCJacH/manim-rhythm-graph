@@ -25,6 +25,7 @@ class Pie(mn.VGroup):
         return self.pulsate(**kwargs)
 
     def pulsate(self, run_time=1, **kwargs):
+        self.background.set_fill(opacity=1)
         return mn.Succession(
             *(
                 x.pulsate(run_time=run_time * self.weights[i], **kwargs)
@@ -64,26 +65,51 @@ class Pie(mn.VGroup):
         return self
 
     @mn.override_animation(mn.Create)
-    def _create_override(self, lag_ratio=0, run_time=1, **kwargs):
+    def _create_override(
+        self,
+        lag_ratio=0,
+        run_time=1,
+        introducer=True,
+        **kwargs,
+    ):
         return mn.AnimationGroup(
-            mn.Create(self.background, run_time=0),
             mn.Create(self.radii),
             *(mn.Create(x) for x in self),
+            lag_ratio=lag_ratio,
+            run_time=run_time,
+            introducer=introducer,
+            **kwargs,
+        )
+
+    @mn.override_animation(mn.Uncreate)
+    def _uncreate_override(
+        self, lag_ratio=0, run_time=1, remover=True, **kwargs
+    ):
+        self.background.set_opacity(0)
+        return mn.AnimationGroup(
+            mn.Uncreate(self.radii, remover=remover),
+            *(mn.Uncreate(x, remover=remover) for x in self),
             lag_ratio=lag_ratio,
             run_time=run_time,
             **kwargs,
         )
 
-    @mn.override_animation(mn.Uncreate)
-    def _uncreate_override(self, lag_ratio=0, run_time=1, **kwargs):
+    @mn.override_animation(mn.Transform)
+    def _transform_override(self, mobject2, *args, remover=True, **kwargs):
+        if type(mobject2).__name__ == "Pulse":
+            return self._transform_to_pulse(mobject2, *args, **kwargs)
+
+        bg = self.background.copy()
+        bg.set_fill_opacity(0)
         return mn.AnimationGroup(
-            mn.FadeOut(self.background, rate_func=lambda _: 1),
-            mn.Uncreate(self.radii),
-            *(mn.Uncreate(x, remover=True) for x in self),
-            lag_ratio=lag_ratio,
-            run_time=run_time,
-            remover=True,
-            **kwargs,
+            mn.Uncreate(self),
+            mn.Transform(
+                bg,
+                mobject2,
+                replace_mobject_with_target_in_scene=False,
+                remover=remover,
+                **kwargs,
+            ),
         )
 
     def _calculate(self, weights=None, colors=None, radius=None, **kwargs):
@@ -109,14 +135,18 @@ class Pie(mn.VGroup):
         self._add_items(**kwargs)
 
     def _add_bg(self):
-        self.background = mn.Circle(
-            radius=self.radius,
+        ellipse = mn.Ellipse(
+            height=self.radius * 2,
+            width=self.radius * 2,
             color=self.stroke_color,
             stroke_color=self.stroke_color,
             stroke_width=self.stroke_width,
             fill_opacity=1,
             z_index=self.z_index,
         )
+        ellipse.rotate(mn.PI / 2)
+        ellipse.force_direction("CW")
+        self.background = ellipse
 
     def _add_items(self, **kwargs):
         self._add_bg()
@@ -130,7 +160,7 @@ class Pie(mn.VGroup):
             self.radius,
             stroke_color=self.stroke_color,
             stroke_width=self.stroke_width,
-            z_index=self.z_index,
+            z_index=self.z_index + 3,
         )
         self.add(
             *(
@@ -179,3 +209,22 @@ class Pie(mn.VGroup):
                 start_item = fewer[cur_pos]
             pairs.append((start_item, more[i]))
         return pairs
+
+    def _transform_to_pulse(
+        self, pulse, *args, run_time=1, lag_ratio=0.6, **kwargs
+    ):
+
+        return mn.AnimationGroup(
+            mn.Uncreate(self, remover=False),
+            mn.Transform(
+                self.background,
+                pulse,
+                run_time=run_time,
+                rate_func=lambda t: mn.rate_functions.ease_out_quart(t),
+                replace_mobject_with_target_in_scene=True,
+            ),
+            *args,
+            lag_ratio=lag_ratio,
+            run_time=run_time,
+            **kwargs,
+        )

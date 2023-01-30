@@ -32,6 +32,12 @@ class RhythmElement(mn.VDict):
     def scale(self):
         return self._scale
 
+    def as_pie(self, **kwargs):
+        return self._change_style(RhythmVisualStyles.PIE, **kwargs)
+
+    def as_pulse(self, **kwargs):
+        return self._change_style(RhythmVisualStyles.PULSE, **kwargs)
+
     def pulsate(self, **kwargs):
         return self[self.style].pulsate(**kwargs)
 
@@ -63,7 +69,7 @@ class RhythmElement(mn.VDict):
             color=self.stroke_color,
             stroke_width=self.stroke_width,
         )
-        pulse.set_opacity(self.style == RhythmVisualStyles.PULSE)
+        pulse.set_stroke_opacity(self.style == RhythmVisualStyles.PULSE)
         self[RhythmVisualStyles.PULSE] = pulse
 
         pie = Pie(
@@ -106,3 +112,19 @@ class RhythmElement(mn.VDict):
                 for i in range(len(self.weights))
             ]
         self.colors = colors
+
+    def _change_style(self, new_style, **kwargs):
+        if self._style == new_style:
+            return mn.Animation(self[self._style])
+
+        original_style = self._style
+        original = self[original_style]
+        self._style = new_style
+        target = self[self._style]
+        target.set_opacity(1)
+        return mn.Succession(
+            mn.Transform(original, target, **kwargs),
+            original.animate(
+                run_time=0.001, rate_func=lambda _: 1
+            ).set_opacity(0),
+        )
