@@ -7,25 +7,108 @@ from .get_sector_pairs import get_sector_pairs
 
 
 class Pie(mn.VGroup):
-    def __init__(self, weights, radius=1, colors=None, **kwargs):
+    def __init__(self, weights, colors=None, radius=1, **kwargs):
         stroke_color = kwargs.pop("stroke_color", mn.WHITE)
         stroke_width = kwargs.pop("stroke_width", mn.DEFAULT_STROKE_WIDTH)
         super().__init__(
             stroke_color=stroke_color, stroke_width=stroke_width, **kwargs
         )
 
-        self.radius = radius
-        self.weights = self._calculate_weights(weights)
-        self.colors = self._calculate_colors(colors)
-
-        self._add_items(
-            **kwargs,
-        )
+        self._calculate(weights, colors, radius)
 
     def __repr__(self):
         return (
             f"Pie({self.weights}, radius={self.radius}, colors={self.colors})"
         )
+
+    def beat(self, **kwargs):
+        return self.pulsate(**kwargs)
+
+    def pulsate(self, run_time=1, **kwargs):
+        return mn.Succession(
+            *(
+                x.pulsate(run_time=run_time * self.weights[i], **kwargs)
+                for (i, x) in enumerate(self)
+            ),
+            run_time=run_time,
+        )
+
+    def reform(self, weights, colors=None, radius=None, **kwargs):
+        pie = self.copy()
+
+        self._calculate(weights, colors, radius)
+        pairs = self._get_transform_pairs(pie, self)
+        unpaired_radii = [
+            x for x in pie.radii if x not in [z for y in pairs for z in y]
+        ]
+        return mn.AnimationGroup(
+            *(
+                mn.Transform(
+                    y,
+                    x,
+                    path_func=mn.straight_path,
+                    remover=True,
+                    introducer=False,
+                )
+                for x, y in pairs
+            ),
+            *(mn.Uncreate(x, rate_func=lambda _: 1) for x in unpaired_radii),
+            remover=True,
+        )
+
+    def set_opacity(self, opacity, **kwargs):
+        self.background.set_opacity(opacity=opacity, **kwargs)
+        self.radii.set_opacity(opacity=opacity, **kwargs)
+        for c in self:
+            c.set_opacity(opacity, **kwargs)
+        return self
+
+    @mn.override_animation(mn.Create)
+    def _create_override(self, lag_ratio=0, run_time=1, **kwargs):
+        return mn.AnimationGroup(
+            mn.Create(
+                self.background,
+                rate_func=lambda _: 0,
+                introducer=False,
+                remover=True,
+            ),
+            mn.Create(self.radii),
+            *(mn.Create(x, introducer=False, remover=True) for x in self),
+            lag_ratio=lag_ratio,
+            run_time=run_time,
+            **kwargs,
+        )
+
+    @mn.override_animation(mn.Uncreate)
+    def _uncreate_override(self, lag_ratio=0, run_time=1, **kwargs):
+        return mn.AnimationGroup(
+            mn.FadeOut(self.background, rate_func=lambda _: 1),
+            mn.Uncreate(self.radii),
+            *(mn.Uncreate(x, remover=True) for x in self),
+            lag_ratio=lag_ratio,
+            run_time=run_time,
+            remover=True,
+            **kwargs,
+        )
+
+    def _calculate(self, weights, colors, radius, **kwargs):
+        self.radius = radius
+        self._calculate_weights(weights)
+        self._calculate_colors(colors)
+
+        try:
+            self.background.set_opacity(0)
+        except AttributeError:
+            pass
+        else:
+            del self.background
+
+        for c in self:
+            c.set_opacity(0)
+            self.remove(c)
+            del c
+
+        self._add_items(**kwargs)
 
     def _calculate_weights(self, weights):
         try:
@@ -36,7 +119,7 @@ class Pie(mn.VGroup):
             weights = np.array(weights, dtype="float64")
         finally:
             weights /= weights.sum()
-        return weights
+        self.weights = weights
 
     def _calculate_colors(self, colors):
         try:
@@ -48,7 +131,7 @@ class Pie(mn.VGroup):
                 raise IndexError(
                     "The length of colors and weights do not match."
                 )
-        return colors
+        self.colors = colors
 
     def _add_bg(self):
         self.background = mn.Circle(
@@ -89,84 +172,6 @@ class Pie(mn.VGroup):
                 )
                 for i, a in enumerate(self.angles)
             )
-        )
-
-    @mn.override_animation(mn.Create)
-    def _create_override(self, lag_ratio=0, run_time=1, **kwargs):
-        return mn.AnimationGroup(
-            mn.Create(
-                self.background,
-                rate_func=lambda _: 0,
-                introducer=False,
-                remover=True,
-            ),
-            mn.Create(self.radii),
-            *(mn.Create(x, introducer=False, remover=True) for x in self),
-            lag_ratio=lag_ratio,
-            run_time=run_time,
-            **kwargs,
-        )
-
-    @mn.override_animation(mn.Uncreate)
-    def _uncreate_override(self, lag_ratio=0, run_time=1, **kwargs):
-        return mn.AnimationGroup(
-            mn.FadeOut(self.background, rate_func=lambda _: 1),
-            mn.Uncreate(self.radii),
-            *(mn.Uncreate(x, remover=True) for x in self),
-            lag_ratio=lag_ratio,
-            run_time=run_time,
-            remover=True,
-            **kwargs,
-        )
-
-    def pulsate(self, run_time=1, **kwargs):
-        return mn.Succession(
-            *(
-                x.pulsate(run_time=run_time * self.weights[i], **kwargs)
-                for (i, x) in enumerate(self)
-            ),
-            run_time=run_time,
-        )
-
-    def beat(self, **kwargs):
-        return self.pulsate(**kwargs)
-
-    def set_opacity(self, opacity, **kwargs):
-        self.background.set_opacity(opacity=opacity, **kwargs)
-        self.radii.set_opacity(opacity=opacity, **kwargs)
-        for c in self:
-            c.set_opacity(opacity, **kwargs)
-
-    def reform(self, divisions, radius=None, colors=None, **kwargs):
-        pie = self.copy()
-        self.background.set_opacity(0)
-        del self.background
-        for c in self:
-            c.set_opacity(0)
-            self.remove(c)
-            del c
-
-        self.radius = radius or self.radius
-        self.weights = self._calculate_weights(divisions)
-        self.colors = self._calculate_colors(colors)
-        self._add_items(**kwargs)
-        pairs = self._get_transform_pairs(pie, self)
-        unpaired_radii = [
-            x for x in pie.radii if x not in [z for y in pairs for z in y]
-        ]
-        return mn.AnimationGroup(
-            *(
-                mn.Transform(
-                    y,
-                    x,
-                    path_func=mn.straight_path,
-                    remover=True,
-                    introducer=False,
-                )
-                for x, y in pairs
-            ),
-            *(mn.Uncreate(x, rate_func=lambda _: 1) for x in unpaired_radii),
-            remover=True,
         )
 
     def _get_transform_pairs(self, pie, pie2):

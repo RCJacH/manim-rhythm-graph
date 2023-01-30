@@ -15,13 +15,11 @@ class RhythmVisualStyles(Enum):
 
 class RhythmElement(mn.VDict):
     def __init__(
-        self, weights=1, colors=mn.RED, style="pie", scale=1, **kwargs
+        self, weights=1, colors=mn.RED, scale=1, style="pie", **kwargs
     ):
         super().__init__(**kwargs)
-        self._style = RhythmVisualStyles[style.upper()]
-        self._scale = scale
-        self.stroke_width *= scale
-        self._calculate(weights, colors)
+        self._scale = 1
+        self._calculate(weights, colors, scale, style)
 
     def __repr__(self):
         return f"RhythmElement(weights={self.weights}, colors={self.colors}, style={self.style}, scale={self.scale})"
@@ -34,9 +32,20 @@ class RhythmElement(mn.VDict):
     def scale(self):
         return self._scale
 
-    def _calculate(self, weights, colors):
-        self._calculate_weights(weights)
-        self._calculate_colors(colors)
+    def pulsate(self, **kwargs):
+        return self[self.style].pulsate(**kwargs)
+
+    def _calculate(self, weights=None, colors=None, scale=None, style=None):
+        scale = scale or self._scale
+        style = style or self._style
+        self.stroke_width /= self.scale
+        self.stroke_width *= scale
+        self._scale = scale
+        self._style = RhythmVisualStyles[style.upper()]
+        if weights is not None:
+            self._calculate_weights(weights)
+        if colors is not None:
+            self._calculate_colors(colors)
         for submob in self.get_all_submobjects():
             submob.set_opacity(0)
             self.remove(submob)
@@ -89,6 +98,3 @@ class RhythmElement(mn.VDict):
                 for i in range(len(self.weights))
             ]
         self.colors = colors
-
-    def pulsate(self, **kwargs):
-        return self[self.style].pulsate(**kwargs)

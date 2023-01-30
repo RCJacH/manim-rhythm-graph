@@ -89,6 +89,7 @@ class PieSector(mn.VDict):
     def set_opacity(self, opacity, **kwargs):
         self["fill"].set_opacity(opacity, **kwargs)
         self["stroke"].set_opacity(opacity, **kwargs)
+        return self
 
     @mn.override_animation(mn.Create)
     def _create_override(self, lag_ratio=0.225, **kwargs):

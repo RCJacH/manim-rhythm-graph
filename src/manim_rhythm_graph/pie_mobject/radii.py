@@ -30,6 +30,11 @@ class Radii(mn.VGroup):
     def __repr__(self):
         return f"Radii(angles={self.angles}, radius={self.radius}, stroke_color={self.stroke_color}, stroke_width={self.stroke_width})"
 
+    def set_opacity(self, opacity, **kwargs):
+        for c in self:
+            c.set_opacity(opacity, **kwargs)
+        return self
+
     @mn.override_animation(mn.Create)
     def _create_override(self, lag_ratio=0, rate_func=lambda _: 0, **kwargs):
         return mn.AnimationGroup(
@@ -48,7 +53,3 @@ class Radii(mn.VGroup):
             remover=True,
             **kwargs,
         )
-
-    def set_opacity(self, opacity, **kwargs):
-        for c in self:
-            c.set_opacity(opacity, **kwargs)
