@@ -60,7 +60,7 @@ class RhythmElement(mn.VDict):
 
         pulse = Pulse(
             height=self.scale,
-            stroke_color=self.stroke_color,
+            color=self.stroke_color,
             stroke_width=self.stroke_width,
         )
         pulse.set_opacity(self.style == RhythmVisualStyles.PULSE)
