@@ -7,7 +7,7 @@ from .get_sector_pairs import get_sector_pairs
 
 
 class Pie(mn.VGroup):
-    def __init__(self, weights, colors=None, radius=1, **kwargs):
+    def __init__(self, weights, colors, radius=1, **kwargs):
         stroke_color = kwargs.pop("stroke_color", mn.WHITE)
         stroke_width = kwargs.pop("stroke_width", mn.DEFAULT_STROKE_WIDTH)
         super().__init__(
@@ -33,7 +33,7 @@ class Pie(mn.VGroup):
             run_time=run_time,
         )
 
-    def reform(self, weights, colors=None, radius=None, **kwargs):
+    def reform(self, weights=None, colors=None, radius=None, **kwargs):
         pie = self.copy()
 
         self._calculate(weights, colors, radius)
@@ -91,10 +91,13 @@ class Pie(mn.VGroup):
             **kwargs,
         )
 
-    def _calculate(self, weights, colors, radius, **kwargs):
-        self.radius = radius
-        self._calculate_weights(weights)
-        self._calculate_colors(colors)
+    def _calculate(self, weights=None, colors=None, radius=None, **kwargs):
+        if weights is not None:
+            self.weights = weights
+        if colors is not None:
+            self.colors = colors
+        if radius is not None:
+            self.radius = radius
 
         try:
             self.background.set_opacity(0)
@@ -109,29 +112,6 @@ class Pie(mn.VGroup):
             del c
 
         self._add_items(**kwargs)
-
-    def _calculate_weights(self, weights):
-        try:
-            weights[0]
-        except TypeError:
-            weights = np.array((1.0,) * int(weights), dtype="float64")
-        else:
-            weights = np.array(weights, dtype="float64")
-        finally:
-            weights /= weights.sum()
-        self.weights = weights
-
-    def _calculate_colors(self, colors):
-        try:
-            colors[0]
-        except TypeError:
-            colors = (mn.RED,) * self.weights.size
-        else:
-            if len(colors) != self.weights.size:
-                raise IndexError(
-                    "The length of colors and weights do not match."
-                )
-        self.colors = colors
 
     def _add_bg(self):
         self.background = mn.Circle(
