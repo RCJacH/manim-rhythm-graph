@@ -20,6 +20,7 @@ class RhythmElement(mn.VDict):
         super().__init__(**kwargs)
         self._style = RhythmVisualStyles[style.upper()]
         self._scale = scale
+        self.stroke_width *= scale
         self._calculate(weights, colors)
 
     def __repr__(self):
@@ -39,13 +40,22 @@ class RhythmElement(mn.VDict):
         for submob in self.get_all_submobjects():
             submob.set_opacity(0)
             self.remove(submob)
-        pulse = Pulse()
-        pulse.scale(self.scale)
+
+        pulse = Pulse(
+            height=self.scale,
+            stroke_color=self.stroke_color,
+            stroke_width=self.stroke_width,
+        )
         pulse.set_opacity(self.style == RhythmVisualStyles.PULSE)
         self[RhythmVisualStyles.PULSE] = pulse
 
-        pie = Pie(weights=self.weights, colors=self.colors)
-        pie.scale(self.scale)
+        pie = Pie(
+            weights=self.weights,
+            colors=self.colors,
+            radius=self.scale,
+            stroke_width=self.stroke_width,
+            stroke_color=self.stroke_color,
+        )
         pie.set_opacity(self.style == RhythmVisualStyles.PIE)
         self[RhythmVisualStyles.PIE] = pie
 

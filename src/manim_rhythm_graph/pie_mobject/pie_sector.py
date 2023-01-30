@@ -51,7 +51,7 @@ class PieSector(mn.VDict):
             start_angle=start_angle,
             angle=angle,
             stroke_color=stroke_color,
-            stroke_width=stroke_width * radius - stroke_width / 2,
+            stroke_width=stroke_width,
             fill_color=color,
             fill_opacity=0,
             z_index=self.z_index + 1,

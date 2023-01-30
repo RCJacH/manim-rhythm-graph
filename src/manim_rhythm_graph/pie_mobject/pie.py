@@ -54,6 +54,7 @@ class Pie(mn.VGroup):
         self.background = mn.Circle(
             radius=self.radius,
             color=self.stroke_color,
+            stroke_color=self.stroke_color,
             stroke_width=self.stroke_width * self.radius
             - self.stroke_width / 2,
             fill_opacity=1,

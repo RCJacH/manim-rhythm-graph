@@ -8,8 +8,8 @@ from manim_rhythm_graph import Pie
 class Pulse(mn.VGroup):
     def __init__(self, height=1, color=None, **kwargs):
         super().__init__()
-        self.stroke_width = (
-            kwargs.pop("stroke_width", mn.DEFAULT_STROKE_WIDTH) * height
+        self.stroke_width = kwargs.pop(
+            "stroke_width", mn.DEFAULT_STROKE_WIDTH * height
         )
         self.color = color or mn.WHITE
 
