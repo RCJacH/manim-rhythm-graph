@@ -1,12 +1,15 @@
 from enum import Enum
+from sys import float_info
 import itertools
-from collections.abc import Iterable
 import numpy as np
 import manim as mn
 
 from manim_rhythm_graph.pie_mobject import Pie
 from manim_rhythm_graph.pulse_mobject import Pulse
 from manim_rhythm_graph.stick_mobject import Stick
+
+
+INSTANT = float_info.min
 
 
 class RhythmVisualStyles(Enum):
@@ -71,7 +74,8 @@ class RhythmElement(mn.VDict):
 
         stick = Stick(
             height=self.scale,
-            color=self.stroke_color,
+            colors=self.colors,
+            stroke_color=self.stroke_color,
             stroke_width=self.stroke_width,
         )
         stick.set_opacity(self.style == RhythmVisualStyles.STICK)
@@ -79,7 +83,8 @@ class RhythmElement(mn.VDict):
 
         pulse = Pulse(
             scale=self.scale,
-            color=self.stroke_color,
+            colors=self.colors,
+            stroke_color=self.stroke_color,
             stroke_width=self.stroke_width,
         )
         pulse.set_opacity(self.style == RhythmVisualStyles.PULSE)
@@ -138,6 +143,6 @@ class RhythmElement(mn.VDict):
         return mn.Succession(
             mn.Transform(original, target, **kwargs),
             original.animate(
-                run_time=0.001, rate_func=lambda _: 1
+                run_time=INSTANT, rate_func=lambda _: 1
             ).set_opacity(0),
         )

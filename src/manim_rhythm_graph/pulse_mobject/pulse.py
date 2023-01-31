@@ -1,5 +1,10 @@
+from sys import float_info
+
 import manim as mn
 import numpy as np
+
+
+INSTANT = float_info.min
 
 
 def squeeze(t, v):
@@ -10,13 +15,13 @@ class Pulse(mn.VGroup):
     LEVELS = (0, 0.3, -0.5, 1, -1, 0)
 
     def __init__(
-        self, levels=None, scale=1, horizontal_ratio=0.3, color=None, **kwargs
+        self, levels=None, scale=1, horizontal_ratio=0.3, colors=None, **kwargs
     ):
         super().__init__()
         self.stroke_width = kwargs.pop(
             "stroke_width", mn.DEFAULT_STROKE_WIDTH * scale
         )
-        self.color = color or mn.WHITE
+        self.stroke_color = kwargs.pop("stroke_color", mn.WHITE)
 
         levels = levels or self.LEVELS
         positions = [
@@ -31,7 +36,8 @@ class Pulse(mn.VGroup):
         polygon = mn.Polygon(
             *positions[:-1],
             *positions[::-1],
-            stroke_color=self.color,
+            fill_color=colors,
+            stroke_color=self.stroke_color,
             stroke_width=self.stroke_width,
             **kwargs,
         )
@@ -48,6 +54,7 @@ class Pulse(mn.VGroup):
 
     @mn.override_animation(mn.Uncreate)
     def _uncreate_override(self, *args, **kwargs):
+        self[0].set_fill(opacity=0)
         return mn.Uncreate(self[0], *args, **kwargs)
 
     @mn.override_animation(mn.Transform)
@@ -56,16 +63,7 @@ class Pulse(mn.VGroup):
         if target_name == "Pie":
             return self._transform_to_pie(mobject2, *args, **kwargs)
         if target_name == "Stick":
-            target = mobject2[0].copy()
-            mobject2.set_opacity(0)
-            return mn.Succession(
-                mn.ClockwiseTransform(self[0], target),
-                mobject2.animate(
-                    run_time=0.001, rate_func=lambda _: 1
-                ).set_opacity(1),
-                *args,
-                **kwargs,
-            )
+            return self._transform_to_stick(mobject2, *args, **kwargs)
 
         return mn.Transform(self[0], mobject2, *args, **kwargs)
 
@@ -79,6 +77,7 @@ class Pulse(mn.VGroup):
         circ.rotate(mn.PI / 2)
         circ.force_direction("CW")
 
+        self[0].set_fill(opacity=0)
         return mn.AnimationGroup(
             mn.ClockwiseTransform(
                 self[0],
@@ -89,9 +88,30 @@ class Pulse(mn.VGroup):
             ),
             mn.Create(pie),
             circ.animate(
-                run_time=0.001, rate_func=lambda _: 1, remover=True
+                run_time=INSTANT, rate_func=lambda _: 1, remover=True
             ).set_opacity(0),
             *args,
             run_time=run_time,
+            **kwargs,
+        )
+
+    def _transform_to_stick(self, stick, *args, **kwargs):
+        target = stick[0].copy()
+        target.set_fill(opacity=0.75)
+        self[0].set_fill(opacity=0.75)
+        stick.set_opacity(0)
+        return mn.Succession(
+            mn.ClockwiseTransform(
+                self[0],
+                target,
+                remover=True,
+            ),
+            stick.animate(run_time=INSTANT, rate_func=lambda _: 1).set_opacity(
+                1
+            ),
+            self[0]
+            .animate(run_time=INSTANT, rate_func=lambda _: 1)
+            .set_fill(opacity=0),
+            *args,
             **kwargs,
         )

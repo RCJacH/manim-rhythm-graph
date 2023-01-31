@@ -1,19 +1,25 @@
 import math
+from sys import float_info
+
 import manim as mn
 import numpy as np
 
 
+INSTANT = float_info.min
+
+
 class Stick(mn.VGroup):
-    def __init__(self, height=1, color=None, **kwargs):
+    def __init__(self, height=1, colors=None, **kwargs):
         super().__init__()
         self.stroke_width = kwargs.pop(
             "stroke_width", mn.DEFAULT_STROKE_WIDTH * height
         )
-        self.color = color or mn.WHITE
+        self.stroke_color = kwargs.pop("stroke_color", mn.WHITE)
 
         ellipse = mn.Ellipse(
             width=height * 2,
             height=0,
+            fill_color=colors,
             stroke_color=self.color,
             stroke_width=self.stroke_width,
             **kwargs,
@@ -51,6 +57,7 @@ class Stick(mn.VGroup):
 
     @mn.override_animation(mn.Uncreate)
     def _uncreate_override(self, **kwargs):
+        self[0].set_fill(opacity=0)
         return mn.AnimationGroup(
             mn.Uncreate(self[0]),
             rate_func=lambda t: mn.rate_functions.smooth(0.5 + t * 0.5, 5),
@@ -63,16 +70,7 @@ class Stick(mn.VGroup):
         if target_name == "Pie":
             return self._transform_to_pie(mobject2, *args, **kwargs)
         if target_name == "Pulse":
-            target = mobject2[0].copy()
-            mobject2.set_opacity(0)
-            return mn.Succession(
-                mn.CounterclockwiseTransform(self[0], target),
-                mobject2.animate(
-                    run_time=0.001, rate_func=lambda _: 1
-                ).set_opacity(1),
-                *args,
-                **kwargs,
-            )
+            return self._transform_to_stick(mobject2, *args, **kwargs)
 
         return mn.Transform(self[0], mobject2, *args, **kwargs)
 
@@ -86,6 +84,7 @@ class Stick(mn.VGroup):
         circ.rotate(mn.PI / 2)
         circ.force_direction("CW")
 
+        self[0].set_fill(opacity=0)
         return mn.AnimationGroup(
             mn.Transform(
                 self[0],
@@ -97,9 +96,30 @@ class Stick(mn.VGroup):
             ),
             mn.Create(pie),
             circ.animate(
-                run_time=0.001, rate_func=lambda _: 1, remover=True
+                run_time=INSTANT, rate_func=lambda _: 1, remover=True
             ).set_opacity(0),
             *args,
             run_time=run_time,
+            **kwargs,
+        )
+
+    def _transform_to_stick(self, stick, *args, **kwargs):
+        target = stick[0].copy()
+        target.set_fill(opacity=0.75)
+        self[0].set_fill(opacity=0.75)
+        stick.set_opacity(0)
+        return mn.Succession(
+            mn.CounterclockwiseTransform(
+                self[0],
+                target,
+                remover=True,
+            ),
+            stick.animate(run_time=INSTANT, rate_func=lambda _: 1).set_opacity(
+                1
+            ),
+            self[0]
+            .animate(run_time=INSTANT, rate_func=lambda _: 1)
+            .set_fill(opacity=0),
+            *args,
             **kwargs,
         )

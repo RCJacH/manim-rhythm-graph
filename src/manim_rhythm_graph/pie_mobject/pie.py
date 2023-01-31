@@ -213,7 +213,7 @@ class Pie(mn.VGroup):
         return pairs
 
     def _transform_to_pulse(
-        self, stick, *args, run_time=1, lag_ratio=0.6, **kwargs
+        self, pulse, *args, run_time=1, lag_ratio=0.6, **kwargs
     ):
         circ = mn.Ellipse(
             width=self.height,
@@ -221,14 +221,13 @@ class Pie(mn.VGroup):
             stroke_color=self.color,
             stroke_width=self.stroke_width,
         )
-        # circ.rotate(mn.PI / 2)
         circ.force_direction("CW")
 
         return mn.AnimationGroup(
             mn.Uncreate(self, remover=False),
             mn.CounterclockwiseTransform(
                 circ,
-                stick,
+                pulse,
                 run_time=run_time,
                 rate_func=lambda t: mn.rate_functions.ease_out_quart(t),
                 replace_mobject_with_target_in_scene=True,
