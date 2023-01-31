@@ -98,6 +98,8 @@ class Pie(mn.VGroup):
     def _transform_override(self, mobject2, *args, remover=True, **kwargs):
         if type(mobject2).__name__ == "Stick":
             return self._transform_to_stick(mobject2, *args, **kwargs)
+        if type(mobject2).__name__ == "Pulse":
+            return self._transform_to_pulse(mobject2, *args, **kwargs)
 
         bg = self.background.copy()
         bg.set_fill_opacity(0)
@@ -210,14 +212,49 @@ class Pie(mn.VGroup):
             pairs.append((start_item, more[i]))
         return pairs
 
+    def _transform_to_pulse(
+        self, stick, *args, run_time=1, lag_ratio=0.6, **kwargs
+    ):
+        circ = mn.Ellipse(
+            width=self.height,
+            height=self.height,
+            stroke_color=self.color,
+            stroke_width=self.stroke_width,
+        )
+        # circ.rotate(mn.PI / 2)
+        circ.force_direction("CW")
+
+        return mn.AnimationGroup(
+            mn.Uncreate(self, remover=False),
+            mn.CounterclockwiseTransform(
+                circ,
+                stick,
+                run_time=run_time,
+                rate_func=lambda t: mn.rate_functions.ease_out_quart(t),
+                replace_mobject_with_target_in_scene=True,
+            ),
+            *args,
+            lag_ratio=lag_ratio,
+            run_time=run_time,
+            **kwargs,
+        )
+
     def _transform_to_stick(
         self, stick, *args, run_time=1, lag_ratio=0.6, **kwargs
     ):
+        circ = mn.Ellipse(
+            width=self.height,
+            height=self.height,
+            stroke_color=self.color,
+            stroke_width=self.stroke_width,
+        )
+        circ.rotate(mn.PI / 2)
+        circ.force_direction("CW")
 
         return mn.AnimationGroup(
             mn.Uncreate(self, remover=False),
             mn.Transform(
-                self.background,
+                circ,
                 stick,
                 run_time=run_time,
                 rate_func=lambda t: mn.rate_functions.ease_out_quart(t),

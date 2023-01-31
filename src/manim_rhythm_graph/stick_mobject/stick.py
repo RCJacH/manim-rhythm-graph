@@ -59,8 +59,20 @@ class Stick(mn.VGroup):
 
     @mn.override_animation(mn.Transform)
     def _transform_override(self, mobject2, *args, **kwargs):
-        if type(mobject2).__name__ == "Pie":
+        target_name = type(mobject2).__name__
+        if target_name == "Pie":
             return self._transform_to_pie(mobject2, *args, **kwargs)
+        if target_name == "Pulse":
+            target = mobject2[0].copy()
+            mobject2.set_opacity(0)
+            return mn.Succession(
+                mn.CounterclockwiseTransform(self[0], target),
+                mobject2.animate(
+                    run_time=0.001, rate_func=lambda _: 1
+                ).set_opacity(1),
+                *args,
+                **kwargs,
+            )
 
         return mn.Transform(self[0], mobject2, *args, **kwargs)
 
