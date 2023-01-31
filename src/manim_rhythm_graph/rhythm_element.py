@@ -5,12 +5,13 @@ import numpy as np
 import manim as mn
 
 from manim_rhythm_graph.pie_mobject import Pie
-from manim_rhythm_graph.pulse_mobject import Pulse
+from manim_rhythm_graph.stick_mobject import Stick
 
 
 class RhythmVisualStyles(Enum):
-    PULSE = 1
-    PIE = 2
+    STICK = 1
+    PULSE = 2
+    PIE = 3
 
 
 class RhythmElement(mn.VDict):
@@ -38,6 +39,9 @@ class RhythmElement(mn.VDict):
     def as_pulse(self, **kwargs):
         return self._change_style(RhythmVisualStyles.PULSE, **kwargs)
 
+    def as_stick(self, **kwargs):
+        return self._change_style(RhythmVisualStyles.STICK, **kwargs)
+
     def pulsate(self, **kwargs):
         return self[self.style].pulsate(**kwargs)
 
@@ -64,13 +68,13 @@ class RhythmElement(mn.VDict):
             submob.set_opacity(0)
             self.remove(submob)
 
-        pulse = Pulse(
+        stick = Stick(
             height=self.scale,
             color=self.stroke_color,
             stroke_width=self.stroke_width,
         )
-        pulse.set_stroke_opacity(self.style == RhythmVisualStyles.PULSE)
-        self[RhythmVisualStyles.PULSE] = pulse
+        stick.set_stroke_opacity(self.style == RhythmVisualStyles.STICK)
+        self[RhythmVisualStyles.STICK] = stick
 
         pie = Pie(
             weights=self.weights,

@@ -1,3 +1,3 @@
 from .pie_mobject import Pie
-from .pulse_mobject import Pulse
+from .stick_mobject import Stick
 from .rhythm_element import RhythmElement

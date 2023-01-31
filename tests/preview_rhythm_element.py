@@ -5,7 +5,7 @@ from manim_rhythm_graph import RhythmElement
 
 class TestRhythmElement(Scene):
     def construct(self):
-        ele = RhythmElement(3, scale=3, style="pulse")
+        ele = RhythmElement(3, scale=3, style="stick")
         self.play(Create(ele))
         self.wait()
         self.play(ele.pulsate())
@@ -14,7 +14,7 @@ class TestRhythmElement(Scene):
         self.wait()
         self.play(ele.pulsate())
         self.wait()
-        self.play(ele.as_pulse())
+        self.play(ele.as_stick())
         self.wait()
         self.play(ele.pulsate())
         self.wait()

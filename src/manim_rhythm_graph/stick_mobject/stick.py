@@ -3,7 +3,7 @@ import manim as mn
 import numpy as np
 
 
-class Pulse(mn.VGroup):
+class Stick(mn.VGroup):
     def __init__(self, height=1, color=None, **kwargs):
         super().__init__()
         self.stroke_width = kwargs.pop(
