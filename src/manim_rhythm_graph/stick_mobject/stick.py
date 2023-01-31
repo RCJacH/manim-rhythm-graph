@@ -15,12 +15,13 @@ class Stick(mn.VGroup):
             "stroke_width", mn.DEFAULT_STROKE_WIDTH * height
         )
         self.stroke_color = kwargs.pop("stroke_color", mn.WHITE)
+        self.colors = colors
 
         ellipse = mn.Ellipse(
             width=height * 2,
             height=0,
-            fill_color=colors,
-            stroke_color=self.color,
+            fill_color=self.colors,
+            stroke_color=self.stroke_color,
             stroke_width=self.stroke_width,
             **kwargs,
         )
