@@ -22,6 +22,7 @@ class Pulse(mn.VGroup):
             "stroke_width", mn.DEFAULT_STROKE_WIDTH * scale
         )
         self.stroke_color = kwargs.pop("stroke_color", mn.WHITE)
+        self.colors = colors
 
         levels = levels or self.LEVELS
         positions = [
@@ -36,13 +37,27 @@ class Pulse(mn.VGroup):
         polygon = mn.Polygon(
             *positions[:-1],
             *positions[::-1],
-            fill_color=colors,
+            fill_color=self.colors,
             stroke_color=self.stroke_color,
             stroke_width=self.stroke_width,
             **kwargs,
         )
         self.add(polygon)
         self.scale(scale)
+
+    def pulsate(self, **kwargs):
+        target = self[0].copy()
+        target.scale(1.2)
+        target.set_stroke(color=self.colors)
+        return mn.Transform(
+            self[0],
+            target,
+            rate_func=lambda t: mn.rate_functions.wiggle(
+                mn.rate_functions.ease_in_out_quart(t**0.5),
+                4,
+            ),
+            **kwargs,
+        )
 
     def set_opacity(self, opacity, **kwargs):
         self[0].set_stroke(opacity=opacity, **kwargs)
