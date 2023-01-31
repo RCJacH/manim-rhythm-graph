@@ -32,11 +32,15 @@ class Pulse(mn.VGroup):
         polygon = mn.Polygon(
             *positions[:-1],
             *positions[::-1],
-            color=color,
+            stroke_color=color,
             **kwargs,
         )
         self.add(polygon)
         self.scale(scale)
+
+    def set_opacity(self, opacity, **kwargs):
+        self[0].set_stroke(opacity=opacity, **kwargs)
+        return self
 
     @mn.override_animation(mn.Create)
     def _create_override(self, *args, **kwargs):
@@ -48,10 +52,4 @@ class Pulse(mn.VGroup):
 
     @mn.override_animation(mn.Transform)
     def _transform_override(self, mobject, *args, **kwargs):
-        if isinstance(mobject, mn.Ellipse):
-            return mn.Succession(
-                self[0].animate().rotate(-mn.PI / 2),
-                mn.Transform(self[0], mobject, *args, **kwargs),
-            )
-
         return mn.Transform(self[0], mobject, *args, **kwargs)

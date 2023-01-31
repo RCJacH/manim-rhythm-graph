@@ -37,7 +37,7 @@ class Stick(mn.VGroup):
         )
 
     def set_opacity(self, opacity, **kwargs):
-        self[0].set_stroke_opacity(opacity, **kwargs)
+        self[0].set_stroke(opacity=opacity, **kwargs)
         return self
 
     @mn.override_animation(mn.Create)

@@ -5,6 +5,7 @@ import numpy as np
 import manim as mn
 
 from manim_rhythm_graph.pie_mobject import Pie
+from manim_rhythm_graph.pulse_mobject import Pulse
 from manim_rhythm_graph.stick_mobject import Stick
 
 
@@ -73,8 +74,16 @@ class RhythmElement(mn.VDict):
             color=self.stroke_color,
             stroke_width=self.stroke_width,
         )
-        stick.set_stroke_opacity(self.style == RhythmVisualStyles.STICK)
+        stick.set_opacity(self.style == RhythmVisualStyles.STICK)
         self[RhythmVisualStyles.STICK] = stick
+
+        pulse = Pulse(
+            scale=self.scale,
+            color=self.stroke_color,
+            stroke_width=self.stroke_width,
+        )
+        pulse.set_opacity(self.style == RhythmVisualStyles.PULSE)
+        self[RhythmVisualStyles.PULSE] = pulse
 
         pie = Pie(
             weights=self.weights,
