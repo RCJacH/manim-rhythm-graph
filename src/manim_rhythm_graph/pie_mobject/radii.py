@@ -15,12 +15,12 @@ class Radii(mn.VGroup):
         self.add(
             *(
                 PieSector(
-                    radius=radius,
+                    radius=self.radius,
                     start_angle=a,
                     angle=0,
                     color=color,
-                    stroke_color=stroke_color,
-                    stroke_width=stroke_width,
+                    stroke_color=self.stroke_color,
+                    stroke_width=self.stroke_width,
                     **kwargs,
                 )
                 for a in self.angles

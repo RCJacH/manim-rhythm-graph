@@ -166,10 +166,11 @@ class RhythmElement(mn.VDict):
         target = self[self._style]
         target.set_opacity(1)
         return mn.Succession(
-            mn.Transform(original, target, **kwargs),
+            mn.Transform(original, target),
             original.animate(
                 run_time=INSTANT, rate_func=lambda _: 1
             ).set_opacity(0),
+            **kwargs,
         )
 
     def _remove_all_items(self):

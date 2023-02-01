@@ -55,7 +55,7 @@ class Pie(mn.VGroup):
     ):
         self.background.set_opacity(opacity=0)
         return mn.AnimationGroup(
-            mn.Create(self.radii),
+            mn.Create(self.radii, introducer=False),
             *(mn.Create(x) for x in self),
             lag_ratio=lag_ratio,
             run_time=run_time,
@@ -148,6 +148,7 @@ class Pie(mn.VGroup):
             stroke_width=self.stroke_width,
             z_index=self.z_index + 3,
         )
+        self.radii.set_opacity(0)
         self.add(
             *(
                 PieSector(
@@ -166,9 +167,6 @@ class Pie(mn.VGroup):
 
     def _transform_to_pie(self, pie, *args, **kwargs):
         pairs = get_transform_pairs(self, pie)
-        unpaired_radii = [
-            x for x in pie.radii if x not in [z for y in pairs for z in y]
-        ]
         return mn.AnimationGroup(
             *(
                 mn.Transform(
@@ -180,7 +178,8 @@ class Pie(mn.VGroup):
                 )
                 for x, y in pairs
             ),
-            *(mn.Uncreate(x, rate_func=lambda _: 1) for x in unpaired_radii),
+            mn.FadeOut(self.radii, rate_func=lambda _: 1),
+            mn.FadeIn(pie.radii, rate_func=lambda t: t == 1),
             *args,
             **kwargs,
         )

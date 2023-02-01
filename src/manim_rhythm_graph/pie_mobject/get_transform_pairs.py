@@ -6,6 +6,8 @@ import numpy as np
 def get_transform_pairs(pie, pie2):
     new_division = len(pie2.weights)
     old_division = len(pie.weights)
+    pie.background.set_opacity(opacity=0)
+    pie2.background.set_opacity(opacity=0)
     if old_division == new_division:
         return ((pie2.background, pie.background), *zip(pie2, pie))
     elif old_division < new_division:
@@ -30,7 +32,9 @@ def get_unequal_pairs(fewer, more):
             next_pos = -1
 
         if cur_pos == next_pos or cur_pos == -1:
-            start_item = fewer.radii[cur_pos]
+            start_item = fewer.radii[cur_pos].copy()
+            # avoid weird artifact when transforming
+            start_item["stroke"].set_stroke(width=start_item.stroke_width / 4)
         else:
             start_item = fewer[cur_pos]
         pairs.append((start_item, more[i]))
