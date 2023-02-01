@@ -1,9 +1,13 @@
+from sys import float_info
 import numpy as np
 import manim as mn
 
 from .pie_sector import PieSector
 from .radii import Radii
-from .get_sector_pairs import get_sector_pairs
+from .get_transform_pairs import get_transform_pairs
+
+
+INSTANT = float_info.min
 
 
 class Pie(mn.VGroup):
@@ -34,29 +38,6 @@ class Pie(mn.VGroup):
             run_time=run_time,
         )
 
-    def reform(self, weights=None, colors=None, radius=None, **kwargs):
-        pie = self.copy()
-
-        self._calculate(weights, colors, radius)
-        pairs = self._get_transform_pairs(pie, self)
-        unpaired_radii = [
-            x for x in pie.radii if x not in [z for y in pairs for z in y]
-        ]
-        return mn.AnimationGroup(
-            *(
-                mn.Transform(
-                    y,
-                    x,
-                    path_func=mn.straight_path,
-                    remover=True,
-                    introducer=False,
-                )
-                for x, y in pairs
-            ),
-            *(mn.Uncreate(x, rate_func=lambda _: 1) for x in unpaired_radii),
-            remover=True,
-        )
-
     def set_opacity(self, opacity, **kwargs):
         self.background.set_opacity(opacity=opacity, **kwargs)
         self.radii.set_opacity(opacity=opacity, **kwargs)
@@ -72,6 +53,7 @@ class Pie(mn.VGroup):
         introducer=True,
         **kwargs,
     ):
+        self.background.set_opacity(opacity=0)
         return mn.AnimationGroup(
             mn.Create(self.radii),
             *(mn.Create(x) for x in self),
@@ -96,6 +78,8 @@ class Pie(mn.VGroup):
 
     @mn.override_animation(mn.Transform)
     def _transform_override(self, mobject2, *args, remover=True, **kwargs):
+        if type(mobject2).__name__ == "Pie":
+            return self._transform_to_pie(mobject2, *args, **kwargs)
         if type(mobject2).__name__ == "Stick":
             return self._transform_to_stick(mobject2, *args, **kwargs)
         if type(mobject2).__name__ == "Pulse":
@@ -180,37 +164,26 @@ class Pie(mn.VGroup):
             )
         )
 
-    def _get_transform_pairs(self, pie, pie2):
-        new_division = len(pie2.weights)
-        old_division = len(pie.weights)
-        if old_division == new_division:
-            return ((pie2.background, pie.background), *zip(pie2, pie))
-        elif old_division < new_division:
-            return [(y, x) for (x, y) in self._get_pairs_from(pie, pie2)]
-        elif old_division > new_division:
-            return self._get_pairs_from(pie2, pie)
-
-    def _get_pairs_from(self, fewer, more):
-        pairs = [(fewer.background, more.background)]
-        more_array = -(more.angles[:, 0] - mn.PI / 2)
-        more_array = np.stack((more_array, (*more_array[1:], mn.TAU)))
-        fewer_array = -(fewer.angles[:, 0] - mn.PI / 2)
-        fewer_array = np.stack((fewer_array, (*fewer_array[1:], mn.TAU)))
-        indice = get_sector_pairs(fewer_array, more_array)
-
-        for i in range(len(indice)):
-            cur_pos = indice[i]
-            try:
-                next_pos = indice[i + 1]
-            except IndexError:
-                next_pos = -1
-
-            if cur_pos == next_pos or cur_pos == -1:
-                start_item = fewer.radii[cur_pos]
-            else:
-                start_item = fewer[cur_pos]
-            pairs.append((start_item, more[i]))
-        return pairs
+    def _transform_to_pie(self, pie, *args, **kwargs):
+        pairs = get_transform_pairs(self, pie)
+        unpaired_radii = [
+            x for x in pie.radii if x not in [z for y in pairs for z in y]
+        ]
+        return mn.AnimationGroup(
+            *(
+                mn.Transform(
+                    y,
+                    x,
+                    path_func=mn.straight_path,
+                    replace_mobject_with_target_in_scene=True,
+                    remover=True,
+                )
+                for x, y in pairs
+            ),
+            *(mn.Uncreate(x, rate_func=lambda _: 1) for x in unpaired_radii),
+            *args,
+            **kwargs,
+        )
 
     def _transform_to_pulse(
         self, pulse, *args, run_time=1, lag_ratio=0.6, **kwargs

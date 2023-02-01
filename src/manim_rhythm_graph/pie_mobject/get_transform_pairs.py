@@ -1,18 +1,40 @@
 import math
+import manim as mn
 import numpy as np
 
 
-def calculate_distance(point_a, point_b):
-    return np.linalg.norm(point_a - point_b)
-    # return math.dist(point_a, point_b)
+def get_transform_pairs(pie, pie2):
+    new_division = len(pie2.weights)
+    old_division = len(pie.weights)
+    if old_division == new_division:
+        return ((pie2.background, pie.background), *zip(pie2, pie))
+    elif old_division < new_division:
+        return [(y, x) for (x, y) in get_unequal_pairs(pie, pie2)]
+    elif old_division > new_division:
+        return get_unequal_pairs(pie2, pie)
 
 
-def shortest_distance(point_a, list_b):
-    distances = [
-        calculate_distance(point_a=point_a, point_b=x) for x in list_b
-    ]
+def get_unequal_pairs(fewer, more):
+    pairs = [(fewer.background, more.background)]
+    more_array = -(more.angles[:, 0] - mn.PI / 2)
+    more_array = np.stack((more_array, (*more_array[1:], mn.TAU)))
+    fewer_array = -(fewer.angles[:, 0] - mn.PI / 2)
+    fewer_array = np.stack((fewer_array, (*fewer_array[1:], mn.TAU)))
+    indice = get_sector_pairs(fewer_array, more_array)
 
-    return np.argmin(distances)
+    for i in range(len(indice)):
+        cur_pos = indice[i]
+        try:
+            next_pos = indice[i + 1]
+        except IndexError:
+            next_pos = -1
+
+        if cur_pos == next_pos or cur_pos == -1:
+            start_item = fewer.radii[cur_pos]
+        else:
+            start_item = fewer[cur_pos]
+        pairs.append((start_item, more[i]))
+    return pairs
 
 
 def get_sector_pairs(fewer_segments, more_segments):
@@ -54,3 +76,15 @@ def get_sector_pairs(fewer_segments, more_segments):
         for x in result_pairs
     ]
     return result
+
+
+def shortest_distance(point_a, list_b):
+    distances = [
+        calculate_distance(point_a=point_a, point_b=x) for x in list_b
+    ]
+
+    return np.argmin(distances)
+
+
+def calculate_distance(point_a, point_b):
+    return np.linalg.norm(point_a - point_b)

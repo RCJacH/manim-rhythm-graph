@@ -17,6 +17,9 @@ class RhythmVisualStyles(Enum):
     PULSE = 2
     PIE = 3
 
+    def upper(self):
+        return self.name
+
 
 class RhythmElement(mn.VDict):
     def __init__(
@@ -46,6 +49,28 @@ class RhythmElement(mn.VDict):
     def as_stick(self, **kwargs):
         return self._change_style(RhythmVisualStyles.STICK, **kwargs)
 
+    def into(self, weights=None, colors=None, scale=None, pie=None, **kwargs):
+        original = self.copy()
+        if pie:
+            self.weights = pie.weights
+            self.colors = pie.colors
+            self._calculate(
+                weights=None, colors=None, scale=pie.radius, **kwargs
+            )
+        else:
+            weights = weights or self.weights
+            colors = colors or self.colors
+            scale = scale or self.scale
+            self._calculate(
+                weights=weights, colors=colors, scale=scale, **kwargs
+            )
+
+        return mn.Transform(
+            original[original.style],
+            self[self.style],
+            replace_mobject_with_target_in_scene=True,
+        )
+
     def pulsate(self, **kwargs):
         return self[self.style].pulsate(**kwargs)
 
@@ -57,7 +82,9 @@ class RhythmElement(mn.VDict):
     def _uncreate_override(self, **kwargs):
         return mn.Uncreate(self[self.style], **kwargs)
 
-    def _calculate(self, weights=None, colors=None, scale=None, style=None):
+    def _calculate(
+        self, weights=None, colors=None, scale=None, style=None, **kwargs
+    ):
         scale = scale or self._scale
         style = style or self._style
         self.stroke_width /= self.scale
@@ -68,9 +95,7 @@ class RhythmElement(mn.VDict):
             self._calculate_weights(weights)
         if colors is not None:
             self._calculate_colors(colors)
-        for submob in self.get_all_submobjects():
-            submob.set_opacity(0)
-            self.remove(submob)
+        self._remove_all_items()
 
         stick = Stick(
             height=self.scale,
@@ -146,3 +171,9 @@ class RhythmElement(mn.VDict):
                 run_time=INSTANT, rate_func=lambda _: 1
             ).set_opacity(0),
         )
+
+    def _remove_all_items(self):
+        keys = list(self.submob_dict.keys())
+        for k in keys:
+            self[k].set_opacity(0)
+            self.remove(k)

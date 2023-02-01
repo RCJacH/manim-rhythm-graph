@@ -16,6 +16,10 @@ class TestDrawPulse(Scene):
         self.wait()
         self.play(ele.as_pie())
         self.wait()
+        self.play(
+            ele.into(weights=[2, 1, 3, -2, 2, 2], colors=[GOLD, ORANGE, GREEN])
+        )
+        self.wait()
         self.play(ele.pulsate())
         self.wait()
         self.play(ele.as_pulse())
