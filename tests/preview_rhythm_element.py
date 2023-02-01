@@ -3,7 +3,7 @@ from manim import *
 from manim_rhythm_graph import RhythmElement
 
 
-class TestRhythmElement(Scene):
+class TestAll(Scene):
     def construct(self):
         ele = RhythmElement(
             weights=5, colors=[RED, BLUE], scale=3, style="pulse"
@@ -47,7 +47,19 @@ class TestRhythmElement(Scene):
         self.play(Uncreate(ele))
 
 
+class TestPulse(Scene):
+    def construct(self):
+        ele = RhythmElement(
+            weights=5, colors=[RED, BLUE], scale=3, style="pulse"
+        )
+        self.play(Create(ele))
+        self.play(ele.pulsate())
+        self.play(Uncreate(ele))
+        self.wait()
+
+
 if __name__ == "__main__":
     with tempconfig({"dry_run": True}):
-        TestRhythmElement().render()
+        # TestAll().render()
+        TestPulse().render()
         pass

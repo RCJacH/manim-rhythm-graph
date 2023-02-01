@@ -64,13 +64,25 @@ class Pulse(mn.VGroup):
         return self
 
     @mn.override_animation(mn.Create)
-    def _create_override(self, *args, **kwargs):
-        return mn.Create(self[0], *args, **kwargs)
+    def _create_override(self, *args, run_time=1, **kwargs):
+        return mn.AnimationGroup(
+            mn.Create(self[0]),
+            run_time=run_time * 0.5,
+            rate_func=lambda t: mn.rate_functions.ease_out_sine(t**1.1)
+            * 0.5,
+            **kwargs,
+        )
 
     @mn.override_animation(mn.Uncreate)
-    def _uncreate_override(self, *args, **kwargs):
+    def _uncreate_override(self, run_time=1, **kwargs):
         self[0].set_fill(opacity=0)
-        return mn.Uncreate(self[0], *args, **kwargs)
+        return mn.AnimationGroup(
+            mn.Uncreate(self[0]),
+            run_time=run_time * 0.5,
+            rate_func=lambda t: 0.5
+            + mn.rate_functions.ease_in_circ(t**0.75) * 0.6,
+            **kwargs,
+        )
 
     @mn.override_animation(mn.Transform)
     def _transform_override(self, mobject2, *args, **kwargs):
