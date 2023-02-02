@@ -42,7 +42,7 @@ class Stick(mn.VGroup):
 
         points = self[0].points
         w = 0.4
-        w2 = 0.25
+        w2 = 0.3
         w2a = 0.175
         return mn.AnimationGroup(
             mn.ShowPassingFlash(
