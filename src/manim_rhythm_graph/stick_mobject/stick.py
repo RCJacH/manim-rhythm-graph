@@ -92,7 +92,7 @@ class Stick(mn.VGroup):
         self[0].set_fill(opacity=0)
         return mn.AnimationGroup(
             mn.Uncreate(self[0]),
-            rate_func=lambda t: mn.rate_functions.smooth(0.5 + t * 0.5, 5),
+            rate_func=lambda t: mn.rate_functions.smooth(0.5 + t * 0.5, 6),
             **kwargs,
         )
 
