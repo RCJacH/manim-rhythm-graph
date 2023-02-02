@@ -58,8 +58,19 @@ class TestPulse(Scene):
         self.wait()
 
 
+class TestStick(Scene):
+    def construct(self):
+        ele = RhythmElement(
+            weights=5, colors=[RED, BLUE], scale=3, style="stick"
+        )
+        self.play(Create(ele))
+        self.play(ele.pulsate())
+        self.play(Uncreate(ele))
+
+
 if __name__ == "__main__":
     with tempconfig({"dry_run": True}):
         # TestAll().render()
-        TestPulse().render()
+        # TestPulse().render()
+        TestStick().render()
         pass
