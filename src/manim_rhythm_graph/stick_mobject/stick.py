@@ -32,13 +32,44 @@ class Stick(mn.VGroup):
     def beat(self, **kwargs):
         return self.pulsate(**kwargs)
 
-    def pulsate(self, **kwargs):
-        return mn.Indicate(
-            self,
-            scale_factor=1.04,
-            color=mn.interpolate_color(self.color, mn.YELLOW, 0.25),
-            rate_func=lambda t: mn.rate_functions.there_and_back(
-                mn.rate_functions.ease_in_out_quart(t**0.25)
+    def pulsate(self, time_width=0.4, **kwargs):
+        try:
+            color = self.colors[0:2]
+        except IndexError:
+            color = self.colors[0]
+        else:
+            color[1] = mn.interpolate_color(color[1], mn.YELLOW, 0.1)
+
+        points = self[0].points
+        w = 0.4
+        w2 = 0.25
+        w2a = 0.175
+        return mn.AnimationGroup(
+            mn.ShowPassingFlash(
+                mn.Line(
+                    points[0],
+                    points[int(points.shape[0] / 2)],
+                    stroke_color=color,
+                    stroke_width=self.stroke_width * 1.4,
+                    sheen_factor=0.8,
+                    sheen_direction=mn.UP,
+                ),
+                time_width=time_width,
+                rate_func=lambda t: t < w
+                and mn.rate_functions.ease_in_out_expo((t / w))
+                or mn.rate_functions.ease_in_expo((1 - t) / (1 - w)),
+            ),
+            mn.Indicate(
+                self[0],
+                scale_factor=1.125,
+                color=mn.interpolate_color(self.color, mn.WHITE, 0.25),
+                rate_func=lambda t: 0
+                if (t < w2a or t > (1 - w2 - w2a))
+                else mn.rate_functions.there_and_back(
+                    mn.rate_functions.ease_in_out_quart(
+                        ((t - w2a) / w2) ** 0.25
+                    )
+                ),
             ),
             **kwargs,
         )
